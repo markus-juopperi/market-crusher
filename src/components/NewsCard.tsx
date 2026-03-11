@@ -1,9 +1,10 @@
 "use client";
 
-import type { FinnhubNews } from "@/types";
+import Image from "next/image";
+import type { NewsArticle } from "@/types";
 
 interface NewsCardProps {
-  article: FinnhubNews;
+  article: NewsArticle;
 }
 
 export function NewsCard({ article }: NewsCardProps) {
@@ -21,11 +22,13 @@ export function NewsCard({ article }: NewsCardProps) {
       className="flex gap-4 rounded-lg border border-gray-700 p-4 hover:border-gray-600 hover:bg-gray-800/50"
     >
       {article.image && (
-        <img
+        <Image
           src={article.image}
           alt=""
+          width={80}
+          height={80}
           className="h-20 w-20 flex-shrink-0 rounded-lg object-cover"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+          unoptimized
         />
       )}
       <div className="min-w-0 flex-1">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { FinnhubNews } from "@/types";
+import type { NewsArticle } from "@/types";
 import { NewsCard } from "./NewsCard";
 
 interface NewsFeedProps {
@@ -9,7 +9,7 @@ interface NewsFeedProps {
 }
 
 export function NewsFeed({ ticker }: NewsFeedProps) {
-  const [articles, setArticles] = useState<FinnhubNews[]>([]);
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

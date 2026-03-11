@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import type { FinnhubProfile, TickerSnapshot } from "@/types";
+import type { StockProfile, TickerSnapshot } from "@/types";
 import { formatCurrency, formatPercent, formatLargeNumber, cn } from "@/lib/utils";
 
 interface StockHeaderProps {
@@ -9,7 +10,7 @@ interface StockHeaderProps {
 }
 
 export function StockHeader({ ticker }: StockHeaderProps) {
-  const [profile, setProfile] = useState<FinnhubProfile | null>(null);
+  const [profile, setProfile] = useState<StockProfile | null>(null);
   const [quote, setQuote] = useState<TickerSnapshot | null>(null);
 
   useEffect(() => {
@@ -39,11 +40,13 @@ export function StockHeader({ ticker }: StockHeaderProps) {
     <div className="mb-6">
       <div className="flex items-start gap-4">
         {profile?.logo && (
-          <img
+          <Image
             src={profile.logo}
             alt=""
+            width={48}
+            height={48}
             className="h-12 w-12 rounded-lg"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            unoptimized
           />
         )}
         <div>
@@ -56,7 +59,7 @@ export function StockHeader({ ticker }: StockHeaderProps) {
           {quote && (
             <div className="mt-1 flex items-baseline gap-3">
               <span className="text-3xl font-bold text-white">
-                {formatCurrency(quote.price)}
+                {formatCurrency(quote.price, quote.currency)}
               </span>
               <span
                 className={cn(
@@ -64,18 +67,18 @@ export function StockHeader({ ticker }: StockHeaderProps) {
                   isPositive ? "text-green-400" : "text-red-400"
                 )}
               >
-                {formatCurrency(quote.change)}{" "}
+                {formatCurrency(quote.change, quote.currency)}{" "}
                 ({formatPercent(quote.changePercent)})
               </span>
             </div>
           )}
           {profile && (
             <div className="mt-2 flex gap-4 text-sm text-gray-400">
-              {profile.marketCapitalization > 0 && (
-                <span>Market Cap: {formatLargeNumber(profile.marketCapitalization * 1e6)}</span>
+              {profile.marketCap > 0 && (
+                <span>Market Cap: {formatLargeNumber(profile.marketCap)}</span>
               )}
-              {profile.finnhubIndustry && (
-                <span>Industry: {profile.finnhubIndustry}</span>
+              {profile.industry && (
+                <span>Industry: {profile.industry}</span>
               )}
               {profile.exchange && (
                 <span>{profile.exchange}</span>

@@ -29,12 +29,13 @@ export function KeyStatsGrid({ ticker }: KeyStatsGridProps) {
     );
   }
 
+  const cur = quote.currency;
   const stats = [
-    { label: "Open", value: formatCurrency(quote.open) },
-    { label: "High", value: formatCurrency(quote.high) },
-    { label: "Low", value: formatCurrency(quote.low) },
-    { label: "Price", value: formatCurrency(quote.price) },
-    { label: "Prev Close", value: formatCurrency(quote.prevClose) },
+    { label: "Open", value: formatCurrency(quote.open, cur) },
+    { label: "High", value: formatCurrency(quote.high, cur) },
+    { label: "Low", value: formatCurrency(quote.low, cur) },
+    { label: "Price", value: formatCurrency(quote.price, cur) },
+    { label: "Prev Close", value: formatCurrency(quote.prevClose, cur) },
   ];
 
   return (

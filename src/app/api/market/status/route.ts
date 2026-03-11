@@ -1,13 +1,29 @@
 import { NextResponse } from "next/server";
-import { finnhubGet } from "@/lib/finnhub-client";
-import type { FinnhubMarketStatus } from "@/types";
+import { getQuote, cachedCall } from "@/lib/yahoo-client";
+import type { MarketStatus } from "@/types";
 
 export async function GET() {
   try {
-    const data = await finnhubGet<FinnhubMarketStatus>(
-      "/stock/market-status?exchange=US",
+    const q = await cachedCall(
+      "market-status",
+      () => getQuote("AAPL"),
       300
     );
+
+    const marketState = (q?.marketState as string) || "CLOSED";
+    const isOpen = marketState === "REGULAR";
+    const session =
+      marketState === "PRE" ? "pre-market"
+      : marketState === "POST" || marketState === "POSTPOST" ? "post-market"
+      : marketState === "REGULAR" ? "regular"
+      : "closed";
+
+    const data: MarketStatus = {
+      exchange: "US",
+      isOpen,
+      session,
+    };
+
     return NextResponse.json(data);
   } catch (error) {
     const message =

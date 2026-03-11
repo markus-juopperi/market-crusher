@@ -45,7 +45,7 @@ export function MarketStatusBar() {
           : "After Hours"
         : "Closed"}
       <span className="ml-4 text-xs opacity-70">
-        Real-time data · Powered by Finnhub
+        Real-time data · Powered by Yahoo Finance
       </span>
     </div>
   );

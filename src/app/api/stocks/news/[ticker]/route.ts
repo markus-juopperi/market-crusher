@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { finnhubGet } from "@/lib/finnhub-client";
-import type { FinnhubNews } from "@/types";
+import { searchSymbols, cachedCall } from "@/lib/yahoo-client";
+import type { NewsArticle } from "@/types";
 
 export async function GET(
   _request: NextRequest,
@@ -8,15 +8,31 @@ export async function GET(
 ) {
   const { ticker: rawTicker } = await params;
   const ticker = rawTicker.toUpperCase();
-  const to = new Date().toISOString().split("T")[0];
-  const from = new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0];
 
   try {
-    const data = await finnhubGet<FinnhubNews[]>(
-      `/company-news?symbol=${ticker}&from=${from}&to=${to}`,
+    const data = await cachedCall(
+      `news:${ticker}`,
+      () => searchSymbols(ticker, { newsCount: 10, quotesCount: 0 }),
       300
     );
-    return NextResponse.json({ articles: (data || []).slice(0, 10) });
+
+    const articles: NewsArticle[] = (data.news || []).map(
+      (item: Record<string, unknown>) => ({
+        datetime: item.providerPublishTime
+          ? Math.floor(
+              new Date(item.providerPublishTime as string).getTime() / 1000
+            )
+          : 0,
+        headline: (item.title || "") as string,
+        id: (item.uuid || String(Math.random())) as string,
+        image: ((item.thumbnail as Record<string, unknown>)?.resolutions as Array<Record<string, unknown>>)?.[0]?.url as string || "",
+        source: (item.publisher || "") as string,
+        summary: "",
+        url: (item.link || "") as string,
+      })
+    );
+
+    return NextResponse.json({ articles });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to fetch news";
