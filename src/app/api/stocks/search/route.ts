@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { finnhubGet } from "@/lib/finnhub-client";
+import { searchSymbols, cachedCall } from "@/lib/yahoo-client";
+import type { SearchResult } from "@/types";
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q");
@@ -8,11 +9,23 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const data = await finnhubGet<{ count: number; result: unknown[] }>(
-      `/search?q=${encodeURIComponent(q)}`,
+    const data = await cachedCall(
+      `search:${q}`,
+      () => searchSymbols(q),
       600
     );
-    return NextResponse.json(data);
+
+    const result: SearchResult[] = (data.quotes || [])
+      .filter((item: Record<string, unknown>) => item.symbol && item.quoteType === "EQUITY")
+      .slice(0, 10)
+      .map((item: Record<string, unknown>) => ({
+        symbol: item.symbol as string,
+        displaySymbol: item.symbol as string,
+        description: (item.shortname || item.longname || "") as string,
+        type: (item.quoteType || "Common Stock") as string,
+      }));
+
+    return NextResponse.json({ count: result.length, result });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to search tickers";

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { finnhubGet } from "@/lib/finnhub-client";
-import type { FinnhubQuote, TickerSnapshot } from "@/types";
+import { getQuote, cachedCall } from "@/lib/yahoo-client";
+import type { TickerSnapshot } from "@/types";
 
 const POPULAR_TICKERS = [
+  // US
   "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "JPM",
   "NFLX", "AMD", "V", "WMT", "MA", "DIS", "BA",
+  // Helsinki (HEX)
+  "NOKIA.HE", "FORTUM.HE", "ELISA.HE", "KONE.HE", "NESTE.HE",
+  "SAMPO.HE", "UPM.HE", "STORA-ENSO-R.HE", "KESKO.HE", "KEMIRA.HE",
 ];
 
 interface MoversCache {
@@ -22,21 +26,25 @@ async function fetchAllMovers(): Promise<TickerSnapshot[]> {
   const results = await Promise.all(
     POPULAR_TICKERS.map(async (ticker): Promise<TickerSnapshot | null> => {
       try {
-        const q = await finnhubGet<FinnhubQuote>(
-          `/quote?symbol=${ticker}`,
+        const q = await cachedCall(
+          `quote:${ticker}`,
+          () => getQuote(ticker),
           300
         );
-        if (!q || q.c === 0) return null;
+        if (!q || !q.regularMarketPrice) return null;
         return {
           ticker,
-          price: q.c,
-          change: q.d ?? 0,
-          changePercent: q.dp ?? 0,
-          high: q.h,
-          low: q.l,
-          open: q.o,
-          prevClose: q.pc,
-          updated: q.t * 1000,
+          price: q.regularMarketPrice,
+          change: q.regularMarketChange ?? 0,
+          changePercent: q.regularMarketChangePercent ?? 0,
+          high: q.regularMarketDayHigh ?? 0,
+          low: q.regularMarketDayLow ?? 0,
+          open: q.regularMarketOpen ?? 0,
+          prevClose: q.regularMarketPreviousClose ?? 0,
+          updated: q.regularMarketTime
+            ? new Date(q.regularMarketTime).getTime()
+            : Date.now(),
+          currency: q.currency ?? "USD",
         };
       } catch {
         return null;

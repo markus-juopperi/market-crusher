@@ -1,9 +1,9 @@
 "use client";
 
-import type { FinnhubNews } from "@/types";
+import type { NewsArticle } from "@/types";
 
 interface NewsCardProps {
-  article: FinnhubNews;
+  article: NewsArticle;
 }
 
 export function NewsCard({ article }: NewsCardProps) {

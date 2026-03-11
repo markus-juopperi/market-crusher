@@ -3,12 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useDashboardStore } from "@/store/dashboard-store";
-import type { FinnhubSearchResult } from "@/types";
+import type { SearchResult } from "@/types";
 import { useRouter } from "next/navigation";
 
 export function TickerSearch() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<FinnhubSearchResult[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const debouncedQuery = useDebounce(query, 500);

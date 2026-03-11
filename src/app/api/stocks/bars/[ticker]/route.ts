@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- * Historical candles via Yahoo Finance (free, no key needed).
- * Finnhub candles require a paid plan.
- */
+/** Historical candles via Yahoo Finance. */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ ticker: string }> }

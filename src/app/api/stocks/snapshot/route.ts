@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { finnhubGet } from "@/lib/finnhub-client";
-import type { FinnhubQuote, TickerSnapshot } from "@/types";
+import { getQuote, cachedCall } from "@/lib/yahoo-client";
+import type { TickerSnapshot } from "@/types";
 
 export async function GET(request: NextRequest) {
   const tickers = request.nextUrl.searchParams.get("tickers");
@@ -14,21 +14,25 @@ export async function GET(request: NextRequest) {
     const results = await Promise.all(
       tickerList.map(async (ticker): Promise<TickerSnapshot | null> => {
         try {
-          const q = await finnhubGet<FinnhubQuote>(
-            `/quote?symbol=${ticker}`,
+          const q = await cachedCall(
+            `quote:${ticker}`,
+            () => getQuote(ticker),
             30
           );
-          if (!q || q.c === 0) return null;
+          if (!q || !q.regularMarketPrice) return null;
           return {
             ticker,
-            price: q.c,
-            change: q.d ?? 0,
-            changePercent: q.dp ?? 0,
-            high: q.h,
-            low: q.l,
-            open: q.o,
-            prevClose: q.pc,
-            updated: q.t * 1000,
+            price: q.regularMarketPrice,
+            change: q.regularMarketChange ?? 0,
+            changePercent: q.regularMarketChangePercent ?? 0,
+            high: q.regularMarketDayHigh ?? 0,
+            low: q.regularMarketDayLow ?? 0,
+            open: q.regularMarketOpen ?? 0,
+            prevClose: q.regularMarketPreviousClose ?? 0,
+            updated: q.regularMarketTime
+              ? new Date(q.regularMarketTime).getTime()
+              : Date.now(),
+            currency: q.currency ?? "USD",
           };
         } catch {
           return null;

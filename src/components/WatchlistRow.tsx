@@ -20,17 +20,17 @@ export function WatchlistRow({ snapshot }: WatchlistRowProps) {
           {snapshot.ticker}
         </Link>
       </td>
-      <td className="px-4 py-3 text-right text-white">{formatCurrency(snapshot.price)}</td>
-      <td className="px-4 py-3 text-right">{formatCurrency(snapshot.change)}</td>
+      <td className="px-4 py-3 text-right text-white">{formatCurrency(snapshot.price, snapshot.currency)}</td>
+      <td className="px-4 py-3 text-right">{formatCurrency(snapshot.change, snapshot.currency)}</td>
       <td className="px-4 py-3 text-right">{formatPercent(snapshot.changePercent)}</td>
       <td className="hidden px-4 py-3 text-right text-gray-300 md:table-cell">
-        {formatCurrency(snapshot.high)}
+        {formatCurrency(snapshot.high, snapshot.currency)}
       </td>
       <td className="hidden px-4 py-3 text-right text-gray-300 md:table-cell">
-        {formatCurrency(snapshot.low)}
+        {formatCurrency(snapshot.low, snapshot.currency)}
       </td>
       <td className="hidden px-4 py-3 text-right text-gray-300 lg:table-cell">
-        {formatCurrency(snapshot.prevClose)}
+        {formatCurrency(snapshot.prevClose, snapshot.currency)}
       </td>
       <td className="px-4 py-3 text-right">
         <button

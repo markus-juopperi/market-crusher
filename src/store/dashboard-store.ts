@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { TickerSnapshot, FinnhubMarketStatus } from "@/types";
+import type { TickerSnapshot, MarketStatus } from "@/types";
 
 interface DashboardStore {
   watchlist: string[];
@@ -12,8 +12,8 @@ interface DashboardStore {
   snapshots: Record<string, TickerSnapshot>;
   setSnapshots: (data: Record<string, TickerSnapshot>) => void;
 
-  marketStatus: FinnhubMarketStatus | null;
-  setMarketStatus: (status: FinnhubMarketStatus) => void;
+  marketStatus: MarketStatus | null;
+  setMarketStatus: (status: MarketStatus) => void;
 
 }
 

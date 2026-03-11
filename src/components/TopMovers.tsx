@@ -82,9 +82,9 @@ export function TopMovers() {
                         {m.ticker}
                       </Link>
                     </td>
-                    <td className="px-4 py-2 text-right text-white">{formatCurrency(m.price)}</td>
+                    <td className="px-4 py-2 text-right text-white">{formatCurrency(m.price, m.currency)}</td>
                     <td className={cn("px-4 py-2 text-right", isPositive ? "text-green-400" : "text-red-400")}>
-                      {formatCurrency(m.change)}
+                      {formatCurrency(m.change, m.currency)}
                     </td>
                     <td className={cn("px-4 py-2 text-right", isPositive ? "text-green-400" : "text-red-400")}>
                       {formatPercent(m.changePercent)}
