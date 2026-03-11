@@ -1,26 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { NextRequest } from "next/server";
 
 // Mock the yahoo-client module
 const mockGetQuote = vi.fn();
 const mockSearchSymbols = vi.fn();
 const mockGetProfile = vi.fn();
-const mockCachedCall = vi.fn(
-  (_key: string, fn: () => Promise<unknown>, _ttl: number) => fn()
-);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockCachedCall = vi.fn((_key: string, fn: () => Promise<unknown>, _ttl?: number) => fn());
 
 vi.mock("@/lib/yahoo-client", () => ({
   getQuote: (...args: unknown[]) => mockGetQuote(...args),
   searchSymbols: (...args: unknown[]) => mockSearchSymbols(...args),
   getProfile: (...args: unknown[]) => mockGetProfile(...args),
-  cachedCall: (...args: unknown[]) => mockCachedCall(args[0], args[1], args[2]),
+  cachedCall: (...args: unknown[]) => mockCachedCall(args[0] as string, args[1] as () => Promise<unknown>, args[2] as number),
 }));
 
 // Helper to create NextRequest-like objects with .nextUrl
 function makeRequest(url: string) {
   const req = new Request(url);
   const parsed = new URL(url);
-  (req as any).nextUrl = parsed;
-  return req;
+  Object.defineProperty(req, "nextUrl", { value: parsed });
+  return req as unknown as NextRequest;
 }
 
 describe("API Routes", () => {
@@ -35,7 +35,7 @@ describe("API Routes", () => {
     it("returns empty array when no tickers param", async () => {
       const { GET } = await import("@/app/api/stocks/snapshot/route");
       const req = makeRequest("http://localhost/api/stocks/snapshot");
-      const res = await GET(req as any);
+      const res = await GET(req);
       const json = await res.json();
       expect(json.tickers).toEqual([]);
     });
@@ -57,7 +57,7 @@ describe("API Routes", () => {
       const req = makeRequest(
         "http://localhost/api/stocks/snapshot?tickers=AAPL"
       );
-      const res = await GET(req as any);
+      const res = await GET(req);
       const json = await res.json();
 
       expect(json.tickers).toHaveLength(1);
@@ -73,7 +73,7 @@ describe("API Routes", () => {
       const req = makeRequest(
         "http://localhost/api/stocks/snapshot?tickers=FAKE"
       );
-      const res = await GET(req as any);
+      const res = await GET(req);
       const json = await res.json();
 
       expect(json.tickers).toEqual([]);
@@ -98,7 +98,7 @@ describe("API Routes", () => {
         "@/app/api/stocks/snapshot/[ticker]/route"
       );
       const req = makeRequest("http://localhost/api/stocks/snapshot/aapl");
-      const res = await GET(req as any, {
+      const res = await GET(req, {
         params: Promise.resolve({ ticker: "aapl" }),
       });
       const json = await res.json();
@@ -114,7 +114,7 @@ describe("API Routes", () => {
         "@/app/api/stocks/snapshot/[ticker]/route"
       );
       const req = makeRequest("http://localhost/api/stocks/snapshot/FAKE");
-      const res = await GET(req as any, {
+      const res = await GET(req, {
         params: Promise.resolve({ ticker: "FAKE" }),
       });
 
@@ -126,7 +126,7 @@ describe("API Routes", () => {
     it("returns empty when no query", async () => {
       const { GET } = await import("@/app/api/stocks/search/route");
       const req = makeRequest("http://localhost/api/stocks/search");
-      const res = await GET(req as any);
+      const res = await GET(req);
       const json = await res.json();
       expect(json.result).toEqual([]);
     });
@@ -152,7 +152,7 @@ describe("API Routes", () => {
       const req = makeRequest(
         "http://localhost/api/stocks/search?q=apple"
       );
-      const res = await GET(req as any);
+      const res = await GET(req);
       const json = await res.json();
 
       expect(json.result).toHaveLength(1);
@@ -181,7 +181,7 @@ describe("API Routes", () => {
         "@/app/api/stocks/details/[ticker]/route"
       );
       const req = makeRequest("http://localhost/api/stocks/details/AAPL");
-      const res = await GET(req as any, {
+      const res = await GET(req, {
         params: Promise.resolve({ ticker: "AAPL" }),
       });
       const json = await res.json();
@@ -203,7 +203,7 @@ describe("API Routes", () => {
         "@/app/api/stocks/details/[ticker]/route"
       );
       const req = makeRequest("http://localhost/api/stocks/details/FAKE");
-      const res = await GET(req as any, {
+      const res = await GET(req, {
         params: Promise.resolve({ ticker: "FAKE" }),
       });
       const json = await res.json();
@@ -231,7 +231,7 @@ describe("API Routes", () => {
 
       const { GET } = await import("@/app/api/stocks/news/[ticker]/route");
       const req = makeRequest("http://localhost/api/stocks/news/AAPL");
-      const res = await GET(req as any, {
+      const res = await GET(req, {
         params: Promise.resolve({ ticker: "AAPL" }),
       });
       const json = await res.json();
@@ -246,7 +246,7 @@ describe("API Routes", () => {
 
       const { GET } = await import("@/app/api/stocks/news/[ticker]/route");
       const req = makeRequest("http://localhost/api/stocks/news/FAKE");
-      const res = await GET(req as any, {
+      const res = await GET(req, {
         params: Promise.resolve({ ticker: "FAKE" }),
       });
       const json = await res.json();
@@ -308,7 +308,7 @@ describe("API Routes", () => {
         "@/app/api/stocks/movers/[direction]/route"
       );
       const req = makeRequest("http://localhost/api/stocks/movers/invalid");
-      const res = await GET(req as any, {
+      const res = await GET(req, {
         params: Promise.resolve({ direction: "invalid" }),
       });
 
@@ -344,7 +344,7 @@ describe("API Routes", () => {
         "@/app/api/stocks/movers/[direction]/route"
       );
       const req = makeRequest("http://localhost/api/stocks/movers/gainers");
-      const res = await GET(req as any, {
+      const res = await GET(req, {
         params: Promise.resolve({ direction: "gainers" }),
       });
       const json = await res.json();

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { StockProfile, TickerSnapshot } from "@/types";
 import { formatCurrency, formatPercent, formatLargeNumber, cn } from "@/lib/utils";
@@ -39,11 +40,13 @@ export function StockHeader({ ticker }: StockHeaderProps) {
     <div className="mb-6">
       <div className="flex items-start gap-4">
         {profile?.logo && (
-          <img
+          <Image
             src={profile.logo}
             alt=""
+            width={48}
+            height={48}
             className="h-12 w-12 rounded-lg"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            unoptimized
           />
         )}
         <div>
