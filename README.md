@@ -8,7 +8,7 @@ Real-time stock dashboard with delayed market data, historical charts, watchlist
 - **React 19** + **Tailwind CSS 3**
 - **TradingView Lightweight Charts 5** for candlestick charting
 - **Zustand 5** for state management (watchlist persisted to localStorage)
-- **Yahoo Finance** (unofficial, via yahoo-finance2) for quotes, search, company profiles, news, and historical candles
+- **Yahoo Finance** (via `yahoo-finance2`) for quotes, search, company profiles, news, and market status
 
 ## Features
 
@@ -60,6 +60,23 @@ Real-time stock dashboard with delayed market data, historical charts, watchlist
 | `npm start` | Start production server |
 | `npm run lint` | Run ESLint |
 | `npm test` | Run unit tests (Vitest) |
+| `npm run test:e2e` | Run E2E tests (Playwright) |
+| `npm run test:all` | Run all tests |
+
+## Testing
+
+- **Unit tests** — [Vitest](https://vitest.dev/) with React Testing Library, located in `src/__tests__/`
+- **E2E tests** — [Playwright](https://playwright.dev/) with Chromium, located in `e2e/`
+
+## CI/CD
+
+GitHub Actions runs on every push to `master` and on pull requests:
+
+1. **Lint** — ESLint
+2. **Type Check** — `tsc --noEmit`
+3. **Unit Tests** — Vitest
+4. **Build** — Next.js production build
+5. **E2E Tests** — Playwright (runs after build, uploads report as artifact)
 
 ## Project Structure
 
@@ -75,23 +92,26 @@ src/
 │       │   ├── search/route.ts            # Ticker search
 │       │   ├── details/[ticker]/route.ts  # Company profile
 │       │   ├── snapshot/[ticker]/route.ts # Current quote
-│       │   ├── bars/[ticker]/route.ts     # Historical candles (Yahoo Finance)
+│       │   ├── snapshot/route.ts          # Batch quotes
+│       │   ├── bars/[ticker]/route.ts     # Historical candles
 │       │   ├── movers/[direction]/route.ts# Top gainers/losers
 │       │   └── news/[ticker]/route.ts     # Company news
 │       └── market/
 │           └── status/route.ts            # Market open/closed status
 ├── __tests__/                             # Vitest unit tests
-├── components/                            # React components (includes reusable TickerSearchInput)
+├── components/                            # React components
 ├── hooks/                                 # Custom hooks (useDebounce)
 ├── lib/
-│   ├── yahoo-client.ts                    # Server-side Yahoo Finance client with in-memory caching
+│   ├── yahoo-client.ts                    # Server-side Yahoo Finance client with caching
 │   └── utils.ts                           # Currency/percent formatters
 ├── store/
 │   └── dashboard-store.ts                 # Zustand store
 └── types/
     └── index.ts                           # TypeScript interfaces
+e2e/
+└── dashboard.spec.ts                      # Playwright E2E tests
 ```
 
 ## API Architecture
 
-All external API calls are proxied through Next.js API routes. The Yahoo Finance client uses the unofficial yahoo-finance2 package with in-memory caching and configurable TTLs per endpoint (30s for quotes, 5min for bars/news/movers, 1h for company profiles). No API key is required.
+All external API calls are proxied through Next.js API routes to keep data fetching server-side. The Yahoo Finance client includes in-memory caching with configurable TTLs per endpoint (30s for quotes, 5min for bars/news/movers, 1h for company profiles). No API key is required.
