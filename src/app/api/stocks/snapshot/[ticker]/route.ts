@@ -22,6 +22,7 @@ export async function GET(
     return NextResponse.json({
       ticker: {
         ticker,
+        name: (q.shortName as string) || (q.longName as string) || undefined,
         price: q.regularMarketPrice,
         change: q.regularMarketChange ?? 0,
         changePercent: q.regularMarketChangePercent ?? 0,

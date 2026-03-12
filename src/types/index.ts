@@ -35,6 +35,7 @@ export interface MarketStatus {
 
 export interface TickerSnapshot {
   ticker: string;
+  name?: string;
   price: number;
   change: number;
   changePercent: number;
@@ -46,11 +47,11 @@ export interface TickerSnapshot {
   currency?: string;
 }
 
-export interface CandleData {
-  t: number;
-  o: number;
-  h: number;
-  l: number;
-  c: number;
-  v: number;
+export interface PortfolioHolding {
+  id: string;
+  ticker: string;
+  shares: number;
+  buyPrice: number;
+  addedAt: number;
 }
+

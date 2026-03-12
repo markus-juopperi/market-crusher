@@ -135,8 +135,9 @@ The free tier allows only **5 API calls per minute** to Massive. The app must bu
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | Dashboard | Watchlist table, market status, top movers |
+| `/` | Dashboard | Watchlist table, portfolio tracker, market status, top movers |
 | `/stock/[ticker]` | Stock Detail | Full chart, quote, fundamentals, news, technicals |
+| `/compare` | Compare Stocks | Normalized % change overlay chart for up to 5 tickers |
 
 ---
 
@@ -165,7 +166,16 @@ The free tier allows only **5 API calls per minute** to Massive. The app must bu
 - Refresh: TanStack Query with **60-second** refetch interval (free tier: 5 req/min budget)
 - Max watchlist size: **10 tickers** (keeps batch snapshot response fast)
 
-#### 6.1.4 Top Movers
+#### 6.1.4 Portfolio Tracker
+- Add holdings via ticker search autocomplete (using `/api/stocks/search`), number of shares, and buy price
+- Displays per-position: current price, market value, unrealized P&L ($), P&L (%)
+- Summary bar shows total portfolio value, total cost basis, total P&L
+- Edit and remove buttons per holding
+- Persisted in localStorage via Zustand persist middleware
+- Uses existing snapshot data from watchlist polling — no additional API calls
+- Color-coded: green for profit, red for loss
+
+#### 6.1.5 Top Movers
 - Two tabs: "Gainers" and "Losers"
 - Show top 20 tickers with price, change %, volume
 - Click → navigate to detail page
@@ -215,6 +225,24 @@ The free tier allows only **5 API calls per minute** to Massive. The app must bu
 - Click → open article URL in new tab
 - Source: `GET /v2/reference/news?ticker={ticker}&limit=10`
 
+### 6.3 Compare Stocks Page (`/compare`)
+
+#### 6.3.1 Ticker Input
+- Search input with debounced autocomplete to add ticker symbols (max 5)
+- Select from search results to add
+- Tickers shown as removable chips/badges
+- Clear all button to reset
+- Counter showing current/max tickers (e.g. "2/5 tickers")
+
+#### 6.3.2 Comparison Chart
+- TradingView Lightweight Charts line chart
+- Each ticker rendered as a colored line (blue, amber, violet, pink, emerald)
+- Values normalized to % change from period start for fair comparison
+- Timeframe selector: 1M, 3M, 6M, 1Y, 5Y
+- Legend showing ticker-to-color mapping
+- Fetches historical bars for all tickers in parallel
+- Source: `GET /api/stocks/bars/{ticker}?range=...&interval=...`
+
 ---
 
 ## 7. Component Tree
@@ -222,15 +250,21 @@ The free tier allows only **5 API calls per minute** to Massive. The app must bu
 ```
 App
 ├── Layout
-│   ├── Header (logo, search bar, theme toggle)
+│   ├── Header (logo, compare link, search bar)
 │   └── MarketStatusBar
 │
 ├── DashboardPage
 │   ├── WatchlistTable
 │   │   └── WatchlistRow (per ticker)
+│   ├── PortfolioPanel (holdings table + P&L summary)
+│   │   └── TickerSearchInput (reusable search autocomplete)
 │   └── TopMovers
 │       ├── GainersTab
 │       └── LosersTab
+│
+├── ComparePage
+│   ├── TickerSearchInput (reusable search autocomplete)
+│   └── ComparisonChart (normalized % change line chart)
 │
 └── StockDetailPage
     ├── StockHeader (name, price, change, logo)
@@ -255,19 +289,19 @@ interface DashboardStore {
   snapshots: Record<string, TickerSnapshot>
   setSnapshots: (data: Record<string, TickerSnapshot>) => void
 
-  // Selected ticker (for detail page)
-  selectedTicker: string | null
-
   // Market status
   marketStatus: MarketStatus | null
+  setMarketStatus: (status: MarketStatus) => void
 
-  // UI
-  theme: 'light' | 'dark'
-  toggleTheme: () => void
+  // Portfolio
+  portfolio: PortfolioHolding[]          // holdings with buy price, shares, timestamp
+  addHolding: (holding: Omit<PortfolioHolding, 'addedAt'>) => void
+  removeHolding: (ticker: string) => void
+  updateHolding: (ticker: string, shares: number, buyPrice: number) => void
 }
 ```
 
-Persistence: `watchlist` and `theme` persisted to localStorage via Zustand `persist` middleware.
+Persistence: `watchlist` and `portfolio` persisted to localStorage via Zustand `persist` middleware.
 
 ---
 
@@ -378,6 +412,13 @@ interface IndicatorValue {
   timestamp: number
   value: number
 }
+
+interface PortfolioHolding {
+  ticker: string
+  shares: number
+  buyPrice: number
+  addedAt: number             // timestamp when position was added
+}
 ```
 
 ---
@@ -390,6 +431,8 @@ market-crusher/
 │   ├── app/
 │   │   ├── layout.tsx              # Root layout, providers, header
 │   │   ├── page.tsx                # Dashboard page
+│   │   ├── compare/
+│   │   │   └── page.tsx            # Compare stocks page
 │   │   ├── stock/
 │   │   │   └── [ticker]/
 │   │   │       └── page.tsx        # Stock detail page
@@ -409,9 +452,12 @@ market-crusher/
 │   │   ├── Header.tsx
 │   │   ├── MarketStatusBar.tsx
 │   │   ├── TickerSearch.tsx
+│   │   ├── TickerSearchInput.tsx
 │   │   ├── WatchlistTable.tsx
 │   │   ├── WatchlistRow.tsx
 │   │   ├── TopMovers.tsx
+│   │   ├── PortfolioPanel.tsx
+│   │   ├── ComparisonChart.tsx
 │   │   ├── StockHeader.tsx
 │   │   ├── PriceChart.tsx
 │   │   ├── KeyStatsGrid.tsx
@@ -474,11 +520,11 @@ The API key must **never** be exposed to the client. All Massive API calls go th
 
 ## 16. Future Enhancements (Out of Scope for v1)
 
-- Portfolio tracking with P&L
+- ~~Portfolio tracking with P&L~~ ✅ Implemented in v1.1
 - Price alerts / notifications
 - Options chain viewer
 - Multi-asset support (crypto, forex)
-- Comparison charts (overlay multiple tickers)
+- ~~Comparison charts (overlay multiple tickers)~~ ✅ Implemented in v1.1
 - Fundamentals deep-dive (income statement, balance sheet)
 
 ---
@@ -496,3 +542,5 @@ The API key must **never** be exposed to the client. All Massive API calls go th
 9. API key never exposed to client-side code
 10. **App never exceeds 5 API requests/minute to Massive** (enforced by server-side rate limiter)
 11. "Delayed data" and "Last updated" indicators visible to users
+12. Portfolio tracker shows per-position and total P&L, persisted across sessions
+13. Compare page overlays up to 5 tickers as normalized % change chart

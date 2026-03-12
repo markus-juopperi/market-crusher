@@ -57,7 +57,7 @@ export function WatchlistTable() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-700 bg-gray-800 text-gray-400">
-              <th className="px-4 py-3 text-left">Symbol</th>
+              <th className="px-4 py-3 text-left">Name</th>
               <th className="px-4 py-3 text-right">Price</th>
               <th className="px-4 py-3 text-right">Change</th>
               <th className="px-4 py-3 text-right">Change %</th>

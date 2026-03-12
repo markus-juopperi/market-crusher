@@ -34,6 +34,7 @@ async function fetchAllMovers(): Promise<TickerSnapshot[]> {
         if (!q || !q.regularMarketPrice) return null;
         return {
           ticker,
+          name: (q.shortName as string) || (q.longName as string) || undefined,
           price: q.regularMarketPrice,
           change: q.regularMarketChange ?? 0,
           changePercent: q.regularMarketChangePercent ?? 0,
