@@ -147,7 +147,7 @@ export function ComparisonChart({ tickers, names }: ComparisonChartProps) {
         chartRef.current = null;
       }
     };
-  }, [tickers, selectedTimeframe]);
+  }, [tickers, selectedTimeframe, names]);
 
   if (tickers.length === 0) {
     return (

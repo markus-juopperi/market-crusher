@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -113,7 +113,7 @@ describe("TickerSearchInput", () => {
     // Click on the first result
     await user.click(screen.getByText("Apple Inc"));
 
-    expect(onSelect).toHaveBeenCalledWith("AAPL");
+    expect(onSelect).toHaveBeenCalledWith("AAPL", "Apple Inc");
     // Input should be cleared
     expect(input).toHaveValue("");
   });

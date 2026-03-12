@@ -177,7 +177,7 @@ describe("ComparePage", () => {
 
     expect(screen.getByText("1/5 tickers")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /remove aapl/i }));
+    await user.click(screen.getByRole("button", { name: /remove apple inc/i }));
     expect(screen.getByText("0/5 tickers")).toBeInTheDocument();
   });
 
