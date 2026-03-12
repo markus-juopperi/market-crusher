@@ -8,8 +8,7 @@ Real-time stock dashboard with delayed market data, historical charts, watchlist
 - **React 19** + **Tailwind CSS 3**
 - **TradingView Lightweight Charts 5** for candlestick charting
 - **Zustand 5** for state management (watchlist persisted to localStorage)
-- **Finnhub API** for quotes, search, company profiles, news, and market status
-- **Yahoo Finance** (unofficial) for historical OHLCV candles
+- **Yahoo Finance** (unofficial, via yahoo-finance2) for quotes, search, company profiles, news, and historical candles
 
 ## Features
 
@@ -44,21 +43,13 @@ Real-time stock dashboard with delayed market data, historical charts, watchlist
    npm install
    ```
 
-3. Create a `.env.local` file with your Finnhub API key:
-
-   ```
-   FINNHUB_API_KEY=your_api_key_here
-   ```
-
-   Get a free API key at [finnhub.io](https://finnhub.io/).
-
-4. Start the dev server:
+3. Start the dev server:
 
    ```bash
    npm run dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000).
+4. Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
@@ -68,6 +59,7 @@ Real-time stock dashboard with delayed market data, historical charts, watchlist
 | `npm run build` | Production build |
 | `npm start` | Start production server |
 | `npm run lint` | Run ESLint |
+| `npm test` | Run unit tests (Vitest) |
 
 ## Project Structure
 
@@ -92,7 +84,7 @@ src/
 ├── components/                            # React components (includes reusable TickerSearchInput)
 ├── hooks/                                 # Custom hooks (useDebounce)
 ├── lib/
-│   ├── finnhub-client.ts                  # Server-side API client with in-memory caching
+│   ├── yahoo-client.ts                    # Server-side Yahoo Finance client with in-memory caching
 │   └── utils.ts                           # Currency/percent formatters
 ├── store/
 │   └── dashboard-store.ts                 # Zustand store
@@ -102,10 +94,4 @@ src/
 
 ## API Architecture
 
-All external API calls are proxied through Next.js API routes to keep the API key server-side. The Finnhub client includes in-memory caching with configurable TTLs per endpoint (30s for quotes, 5min for bars/news/movers, 1h for company profiles).
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `FINNHUB_API_KEY` | Finnhub API key (server-side only) | Yes |
+All external API calls are proxied through Next.js API routes. The Yahoo Finance client uses the unofficial yahoo-finance2 package with in-memory caching and configurable TTLs per endpoint (30s for quotes, 5min for bars/news/movers, 1h for company profiles). No API key is required.
