@@ -51,9 +51,9 @@ export function StockHeader({ ticker }: StockHeaderProps) {
         )}
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-white">{ticker}</h1>
+            <h1 className="text-2xl font-bold text-white">{profile?.name || ticker}</h1>
             {profile?.name && (
-              <span className="text-lg text-gray-400">{profile.name}</span>
+              <span className="text-lg text-gray-400">{ticker}</span>
             )}
           </div>
           {quote && (

@@ -66,7 +66,7 @@ export function TopMovers() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-700 bg-gray-800 text-gray-400">
-                <th className="px-4 py-2 text-left">Symbol</th>
+                <th className="px-4 py-2 text-left">Name</th>
                 <th className="px-4 py-2 text-right">Price</th>
                 <th className="px-4 py-2 text-right">Change</th>
                 <th className="px-4 py-2 text-right">Change %</th>
@@ -79,7 +79,7 @@ export function TopMovers() {
                   <tr key={m.ticker} className="border-b border-gray-700 hover:bg-gray-800/50">
                     <td className="px-4 py-2">
                       <Link href={`/stock/${m.ticker}`} className="font-medium text-white hover:text-blue-400">
-                        {m.ticker}
+                        {m.name || m.ticker}
                       </Link>
                     </td>
                     <td className="px-4 py-2 text-right text-white">{formatCurrency(m.price, m.currency)}</td>

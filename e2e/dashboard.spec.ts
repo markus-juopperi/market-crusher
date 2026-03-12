@@ -41,8 +41,8 @@ test.describe("Dashboard Page", () => {
       timeout: 15_000,
     });
 
-    // Should show at least one ticker symbol
-    await expect(moversTable.getByText(/AAPL|MSFT|GOOGL|NOKIA/).first()).toBeVisible();
+    // Should show at least one stock link
+    await expect(moversTable.locator("a[href^='/stock/']").first()).toBeVisible();
   });
 
   test("can switch between gainers and losers", async ({ page }) => {
@@ -161,10 +161,10 @@ test.describe("Stock Detail Page", () => {
     await expect(page.getByText("Key Stats")).toBeVisible();
 
     // Wait for stats to load
-    await expect(page.getByText("Open")).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText("High")).toBeVisible();
-    await expect(page.getByText("Low")).toBeVisible();
-    await expect(page.getByText("Prev Close")).toBeVisible();
+    await expect(page.getByText("Open", { exact: true })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("High", { exact: true })).toBeVisible();
+    await expect(page.getByText("Low", { exact: true })).toBeVisible();
+    await expect(page.getByText("Prev Close", { exact: true })).toBeVisible();
   });
 
   test("shows price chart with timeframe buttons", async ({ page }) => {

@@ -14,6 +14,8 @@ Real-time stock dashboard with delayed market data, historical charts, watchlist
 
 - **Ticker Search** — search stocks by symbol or name with debounced autocomplete
 - **Watchlist** — add up to 10 tickers, auto-refreshing prices every 60s, persisted across sessions
+- **Portfolio Tracker** — track holdings with buy price and shares, see unrealized P&L per position and total, persisted to localStorage; ticker search with autocomplete for adding positions
+- **Compare Stocks** — overlay up to 5 tickers on a normalized % change chart with selectable timeframes (1M to 5Y); ticker search with autocomplete for adding tickers
 - **Top Movers** — daily gainers and losers with price and percent change
 - **Market Status** — live open/closed/pre-market indicator
 - **Stock Detail Page** — candlestick chart with 7 timeframes (1D to 5Y), volume overlay, key stats, and news feed
@@ -82,7 +84,8 @@ GitHub Actions runs on every push to `master` and on pull requests:
 src/
 ├── app/
 │   ├── layout.tsx                         # Root layout with header and market status bar
-│   ├── page.tsx                           # Dashboard (watchlist + top movers)
+│   ├── page.tsx                           # Dashboard (watchlist + portfolio + top movers)
+│   ├── compare/page.tsx                   # Compare stocks page
 │   ├── stock/[ticker]/page.tsx            # Stock detail page
 │   └── api/
 │       ├── stocks/
