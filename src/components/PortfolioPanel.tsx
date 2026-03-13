@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDashboardStore } from "@/store/dashboard-store";
 import { formatCurrency, formatPercent, cn } from "@/lib/utils";
+import { encodePortfolio } from "@/lib/portfolio-sharing";
 import { TickerSearchInput } from "@/components/TickerSearchInput";
 import Link from "next/link";
 
@@ -14,6 +15,7 @@ export function PortfolioPanel() {
   const [ticker, setTicker] = useState("");
   const [shares, setShares] = useState("");
   const [buyPrice, setBuyPrice] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const editHolding = editId ? portfolio.find((h) => h.id === editId) : null;
 
@@ -67,12 +69,31 @@ export function PortfolioPanel() {
     <div>
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">Portfolio</h2>
-        <button
-          onClick={() => { setShowForm(!showForm); setEditId(null); }}
-          className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
-        >
-          {showForm ? "Cancel" : "+ Add Position"}
-        </button>
+        <div className="flex gap-2">
+          {portfolio.length > 0 && (
+            <button
+              onClick={() => {
+                const encoded = encodePortfolio(
+                  portfolio.map((h) => ({ ticker: h.ticker, shares: h.shares, buyPrice: h.buyPrice }))
+                );
+                const url = `${window.location.origin}/portfolio/shared?p=${encoded}`;
+                navigator.clipboard.writeText(url).then(() => {
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                });
+              }}
+              className="rounded bg-gray-600 px-3 py-1 text-sm text-white hover:bg-gray-500"
+            >
+              {copied ? "Link Copied!" : "Share"}
+            </button>
+          )}
+          <button
+            onClick={() => { setShowForm(!showForm); setEditId(null); }}
+            className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
+          >
+            {showForm ? "Cancel" : "+ Add Position"}
+          </button>
+        </div>
       </div>
 
       {showForm && (

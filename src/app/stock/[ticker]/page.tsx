@@ -5,6 +5,7 @@ import Link from "next/link";
 import { StockHeader } from "@/components/StockHeader";
 import { PriceChart } from "@/components/PriceChart";
 import { KeyStatsGrid } from "@/components/KeyStatsGrid";
+import { AnalystRatings } from "@/components/AnalystRatings";
 import { NewsFeed } from "@/components/NewsFeed";
 
 export default function StockDetailPage() {
@@ -22,6 +23,7 @@ export default function StockDetailPage() {
       <StockHeader ticker={ticker} />
       <PriceChart ticker={ticker} />
       <KeyStatsGrid ticker={ticker} />
+      <AnalystRatings ticker={ticker} />
       <NewsFeed ticker={ticker} />
     </div>
   );
