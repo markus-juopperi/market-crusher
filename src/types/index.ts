@@ -55,3 +55,26 @@ export interface PortfolioHolding {
   addedAt: number;
 }
 
+export interface EarningsEvent {
+  ticker: string;
+  name: string;
+  date: string;
+  epsEstimate: number | null;
+  revenueEstimate: number | null;
+}
+
+export interface AnalystRating {
+  period: string;
+  strongBuy: number;
+  buy: number;
+  hold: number;
+  sell: number;
+  strongSell: number;
+}
+
+export interface SharedPortfolioEntry {
+  ticker: string;
+  shares: number;
+  buyPrice: number;
+}
+

@@ -73,3 +73,15 @@ export async function getProfile(
 ): Promise<{ assetProfile?: Record<string, unknown>; price?: Record<string, unknown> }> {
   return yf.quoteSummary(symbol, { modules: ["assetProfile", "price"] });
 }
+
+export async function getCalendarEvents(
+  symbol: string
+): Promise<{ calendarEvents?: Record<string, unknown> }> {
+  return yf.quoteSummary(symbol, { modules: ["calendarEvents"] });
+}
+
+export async function getRecommendationTrend(
+  symbol: string
+): Promise<{ recommendationTrend?: Record<string, unknown> }> {
+  return yf.quoteSummary(symbol, { modules: ["recommendationTrend"] });
+}
