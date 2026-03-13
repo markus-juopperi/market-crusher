@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { decodePortfolio } from "@/lib/portfolio-sharing";
@@ -18,6 +18,14 @@ interface HoldingRow extends SharedPortfolioEntry {
 }
 
 export default function SharedPortfolioPage() {
+  return (
+    <Suspense fallback={<p className="text-gray-500">Loading portfolio...</p>}>
+      <SharedPortfolioContent />
+    </Suspense>
+  );
+}
+
+function SharedPortfolioContent() {
   const searchParams = useSearchParams();
   const encoded = searchParams.get("p");
   const [holdings, setHoldings] = useState<HoldingRow[]>([]);
